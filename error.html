@@ -1,0 +1,68 @@
+<html dir="ltr" lang="zh" i18n-processed=""><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no">
+  <title></title>
+</head>
+<style>
+  #main-frame-error{
+    margin: 0px auto;
+    width: 50%;
+    margin-top: 15%;
+  }
+  #main-frame-error p{
+    font-size: 30px;
+  }
+  button{
+    background: rgb(66, 133, 244);
+    border: 0;
+    border-radius: 2px;
+    box-sizing: border-box;
+    color: #fff;
+    cursor: pointer;
+    font-size: .875em;
+    padding: 10px 24px;
+    transition: box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+    margin-top: 20px;
+  }
+  strong{
+    color:rgb(100, 100, 100)
+  }
+  .error-code{
+    color: #aba8a8;
+    margin-top: 20px;
+  }
+</style>
+<body  style="font-family: 'Segoe UI',Arial,'Microsoft Yahei',sans-serif;">
+<div id="main-frame-error" class="interstitial-wrapper">
+  <div id="main-content" >
+    <div id="main-message">
+      <p>无法访问此网站</p>
+      <strong></strong>
+      <div class="error-code"></div>
+    </div>
+  </div>
+  <div>
+      <button onclick="window.location.href=url">重新加载</button>
+  </div>
+</div>
+</body>
+<script>
+  function get (url) {
+      url=url?url:location.search; //获取url中"?"符后的字串
+      var param = {},strs;
+      if (url.split("?").length>1) {
+          strs = url.split("?")[1].split("&");
+          for(var i = 0; i < strs.length; i ++) {
+              param[strs[i].split("=")[0]]=decodeURIComponent(strs[i].split("=")[1]);
+          }
+      }
+      return param;
+  };
+  let query=get();
+  let url=query.url;
+  let msg=query.msg;
+  document.title=document.getElementsByTagName('strong')[0].innerHTML=url;
+  document.getElementsByClassName('error-code')[0].innerHTML=msg;
+</script>
+</html>

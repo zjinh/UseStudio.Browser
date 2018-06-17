@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>关于我们</title>
+    <link rel="stylesheet" href="./public/css/browser.css">
+</head>
+<body>
+<section style="-webkit-app-region: drag;height: 55px;" class="bowerHeader">
+    <section style="-webkit-app-region: no-drag" class="browerHeaderControl clearfix">
+        <button type="button" class="icon-times close" style="font-size:16px"></button>
+    </section>
+    <div class="FeedBackMain">
+        <div class="FeedBackHead">
+            <img draggable="false" src="public/img/tray/logo.png">
+            <p>有思浏览器</p>
+        </div>
+        <div class="FeedBackContainer">
+            <p></p>
+            <p>开发人员：14互联网G5-2郑锦宏&nbsp&nbsp15互联网3班蔡文东</p>
+            <p>浏览器介绍：http://client.1473.cn</p>
+            <p>版权所有2018 有思俱乐部. 保留所有权利。</p>
+            <div style="height: 10px;"><span></span></div>
+            <span></span>
+            <button>检查更新</button>
+        </div>
+    </div>
+</section>
+<script src="./public/js/uform.js"></script>
+<script>
+    var ipc=require('electron').ipcRenderer;
+    var version=null;
+    const {ipcRenderer} = require('electron');
+    $(".close")[0].onclick=function(){
+        ipc.send('AboutUsW-close');
+    };
+    ipc.send('get-version');
+    var FeedBackContainer=$(".FeedBackContainer *");
+    FeedBackContainer[7].onclick=function () {
+        FeedBackContainer[6].innerHTML='正在查询新版本';
+        ipc.send('check-for-update', 'event-update');
+    };
+    ipcRenderer.on('version',function (event,message) {
+        FeedBackContainer[0].innerHTML='有思浏览器 ('+process.platform+') v'+message;
+        version=message;
+    });
+    ipcRenderer.on('check-for-update',function (event,message) {
+        FeedBackContainer[6].innerHTML=message;
+        if(message==='最新版本已下载，点击安装已进行更新'){
+            FeedBackContainer[7].innerHTML='重启并安装更新';
+            FeedBackContainer[7].onclick=function () {
+                ipc.send('update', 'event-update');
+            }
+        }
+    });
+    ipcRenderer.on('update-down-success',function (event,message) {
+        FeedBackContainer[1].innerHTML='当前版本号:v'+version+'<span>&nbsp&nbsp&nbsp发现新版本:v'+message.version+'</span>';
+    })
+</script>

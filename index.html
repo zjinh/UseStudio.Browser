@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>校园资讯</title>
+    <link rel="stylesheet" href="public/css/uform.css">
+    <link rel="stylesheet" href="public/css/CampusInfo.css">
+</head>
+<body>
+<section style="-webkit-app-region: drag" class="CampusInfoHead">
+    <div class="CampusInfoHeadTitle">
+        <img src="public/img/tray/logo1.png" draggable="false">
+        <p>有思俱乐部</p>
+        <span><div>校内版</div></span>
+        <p class="CampusInfoHeadWeather">深圳市 16°C 晴</p>
+    </div>
+    <section style="-webkit-app-region: no-drag" class="CampusInfoHeadControl">
+        <button type="button" style="display: none">max</button>
+        <button type="button" class="icon-minus" style="font-size: 20px;"></button>
+        <button type="button" class="icon-cancel"></button>
+    </section>
+    <img src="public/img/head.png" class="CampusInfoHeadImg" draggable="false">
+</section>
+<ul class="CampusInfoHeadNav">
+</ul>
+<div class="CampusInfoMain">
+    <div class="CampusInfoLoading">
+        <span>
+            <img src="public/img/loading.png" draggable="false">
+            <div class="icon-cog animate-spin"></div>
+        </span>
+    </div>
+</div>
+</body>
+<script src="public/js/uform.js"></script>
+<script src="public/js/CampusInfo-data.js"></script>
+<script src="http://seo.1473.cn/CampusInfo/js/CampusInfo-data.js"></script>
+<script src="public/js/CampusInfo.js"></script>
+<script>
+    const electron = require('electron');//electron主进程
+    const ipc = electron.ipcRenderer;//ipc命令集合
+    var CampusInfoHeadControl=$(".CampusInfoHeadControl button");
+    CampusInfoHeadControl[0].addEventListener('click',function (){
+        ipc.send('window-max');
+    });
+    CampusInfoHeadControl[1].addEventListener('click',function (){
+        ipc.send('window-min');
+    });
+    CampusInfoHeadControl[2].addEventListener('click',function (){
+        ipc.send('window-close');
+    });
+</script>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>有思浏览器</title>
+    <link rel="stylesheet" href="./public/css/browser.css">
+</head>
+<body>
+    <section style="-webkit-app-region: no-drag" class="bowerTop"></section>
+    <section style="-webkit-app-region: drag" class="bowerHeader">
+        <ul class="bowerCreaterWindow" style="-webkit-app-region: drag;padding:15px 0 0">
+            <button class="BrowwerAdd"></button>
+        </ul>
+        <section style="-webkit-app-region: no-drag" class="browerHeaderControl clearfix">
+            <button type="button" class="icon-window-minimize"></button>
+            <button type="button" class="icon-window-maximize"></button>
+            <button type="button" class="icon-times close" style="font-size:16px"></button>
+        </section>
+    </section>
+    <div class="BrowerHead">
+        <button class="icon-left"></button>
+        <button class="icon-right"></button>
+        <button class="icon-cw"></button>
+        <div  class="BrowerUrlArea">
+          <span class="icon-lock"></span>
+          <input type="text" placeholder="在此输入网址或关键词" id="search">
+        </div>
+        <button class="icon-ellipsis-vert"></button>
+        <ul class="MouseMenuMain" id="CampusInfoBrowserOnclickMenu" style="right: 1px;top:81px">
+            <li onclick="US_Browser.CreatBrower('')">打开一个新的标签页<span>Ctrl+T</span></li>
+            <li onclick="US_Browser.CreatBrowerWindow('')">打开新的窗口<span>Ctrl+N</span></li>
+            <li style="display: none">打开一个新的窗口</li>
+            <li class="MouseMenuMainStep"></li>
+            <li onclick="US_Browser.ShowHistory()">历史记录<span>Ctrl+H</span></li>
+            <li onclick="US_Browser.ClearCache()">清除缓存<span>F12/Ctrl+Shift+Del</span></li>
+            <li onclick="US_Browser.Print();">打印<span>Ctrl+P</span></li>
+            <li onclick="US_Browser.Find();">查找<span>Ctrl+F</span></li>
+            <li onclick="US_Browser.DevTools();">开发人员工具<span>F12/Ctrl+Shift+I</span></li>
+            <li class="MouseMenuMainStep"></li>
+            <li onclick="US_Browser.CampusInfo()">校园资讯<span>Alt+Shift+S</span></li>
+            <li onclick="US_Browser.Feedback()">问题反馈<span>Alt+Shift+I</span></li>
+            <li onclick="US_Browser.about()">关于我们<span>F1</span></li>
+            <li class="MouseMenuMainStep"></li>
+            <li onclick="US_Browser.Exit()">退出<span>Ctrl+Shift+Q</span></li>
+        </ul>
+    </div>
+    <ul class="MouseMenuMain" id="webviewBrowserMenu">
+        <li class="US_OpenLinkInNew"  style="display: none">在新标签页中打开链接</li>
+        <li class='US_OpenImgInNew' style="display: none">在新标签页中打开图片</li>
+        <li class="US_Browers_Back"  onclick="US_Browser.goBack();">返回<span>Alt+左箭头</span></li>
+        <li class="US_Browers_go" onclick="US_Browser.goForward();">前进<span>Alt+右箭头</span></li>
+        <li onclick="US_Browser.reFresh();">重新加载<span>Ctrl+R</span></li>
+        <li onclick="US_Browser.Print();">打印<span>Ctrl+P</span></li>
+        <li class="MouseMenuMainStep"></li>
+        <li onclick="US_Browser.SourceCode();">查看网页源代码<span>Ctrl+U</span></li>
+        <li onclick="US_Browser.DevTools();">检查<span>F12/Ctrl+Shift+I</span></li>
+    </ul>
+    <div class="BrowerFind">
+        <input type="text" placeholder="搜索网页内容">
+        <span>0/0</span>
+        <button class="icon-angle-up" style="cursor: no-drop"></button>
+        <button class="icon-angle-down"></button>
+        <button class="icon-times"></button>
+    </div>
+    <p class="BrowerTips"></p>
+</body>
+<script src="./public/js/uform.js"></script>
+<script src="./public/js/browser.js"></script>
+</html>

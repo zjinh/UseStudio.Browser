@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>有思浏览器反馈</title>
+    <link rel="stylesheet" href="./public/css/browser.css">
+</head>
+<body>
+<section style="-webkit-app-region: drag" class="bowerHeader">
+    <section style="-webkit-app-region: no-drag;height: 55px" class="browerHeaderControl clearfix">
+        <button type="button" class="icon-times close" style="font-size:16px"></button>
+    </section>
+    <div class="FeedBackMain">
+        <div class="FeedBackHead">
+            <img draggable="false" src="public/img/tray/logo.png">
+            <p>问题反馈</p>
+        </div>
+        <div class="FeedBackContainer">
+            <input type="text" placeholder="请输入标题">
+            <textarea maxlength="300" placeholder="请输入内容"></textarea>
+            <span></span>
+            <button>提交</button>
+        </div>
+    </div>
+</section>
+<script src="./public/js/uform.js"></script>
+<script>
+var ipc=require('electron').ipcRenderer;
+$(".close")[0].onclick=function(){
+    ipc.send('BrowserFeedback-close');
+};
+var FeedBackFrom=$(".FeedBackContainer *");
+FeedBackFrom[3].onclick=function(){
+    if(FeedBackFrom[0].value===""){
+        FeedBackFrom[2].innerHTML='请输入标题';
+        var a=setTimeout(function () {
+            FeedBackFrom[2].innerHTML='';
+            clearTimeout(a);
+        },3000);
+        return false;
+    }
+    if(FeedBackFrom[1].value===""){
+        FeedBackFrom[2].innerHTML='请输入内容';
+        var a=setTimeout(function () {
+            FeedBackFrom[2].innerHTML='';
+            clearTimeout(a);
+        },3000);
+        return false;
+    }
+    if(FeedBackFrom[0].value!=="" && FeedBackFrom[1].value!==""){
+        U.A.Request("http://cd.1473.cn/net",["db.1473.cn", "UseStudio_FeedBack", "InsertUserFeedback","3cd76163-ee3e-4eb4-a586-aabec937fa2c",FeedBackFrom[0].value,FeedBackFrom[1].value],function (r){//插入信息到数据库
+           if(r.value){
+               alert('提交成功');
+               ipc.send('BrowserFeedback-close');
+           }else{
+                alert('提交失败')
+           }
+        })
+    }
+}
+</script>
+</body>
+</html>

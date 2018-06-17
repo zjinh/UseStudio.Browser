@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>历史记录</title>
+    <link rel="stylesheet" href="./public/css/browser.css">
+</head>
+<body style="overflow: hidden">
+<section style="-webkit-app-region: drag;height: 55px" class="bowerHeader">
+    <section style="-webkit-app-region: no-drag" class="browerHeaderControl clearfix">
+        <button type="button" class="icon-times close" style="font-size:16px;background: none;color: #fff"></button>
+    </section>
+    <div class="HistoryMain">
+        <div class="HistoryHead">
+            <p>历史记录</p>
+        </div>
+        <div class="HistoryContainer">
+
+        </div>
+    </div>
+    <div class="CampusInfoBrowserHistory"></div>
+</section>
+<script src="./public/js/uform.js"></script>
+<script>
+    var ipc=require('electron').ipcRenderer;
+    $(".close")[0].onclick=function(){
+        ipc.send('BrowserHistory-close');
+    };
+    addChild = function(parent,newChild){
+        if(parent.firstChild){
+            parent.insertBefore(newChild,parent.firstChild);
+        } else {
+            parent.addChild(newChild);
+        }
+        return parent;
+    }
+    var BrowserHistory = $(".HistoryContainer")[0];
+    for (date in localStorage) {
+        var a=$$("div",{"className":"HistoryCard"});
+        addChild(BrowserHistory,a);
+        var a_head=$$("p",{"className":"HistoryCardHead","innerText":date},a);
+        var a_container=$$("ul",{"className":"HistoryCardContainer"},a);
+        var data=JSON.parse(localStorage[date]);
+        console.log(data)
+        for(var i=0;i<data.length;i++){
+            var a_list=$$("li",{},a_container);
+            var a_time=$$("span",{"innerText":data[i].time},a_list);
+            var a_content=$$("div",{},a_list);
+            $$("img",{"src":data[i].favicons,"draggable":"false"},a_content);
+            $$("p",{"innerText":data[i].title},a_content);
+            a_list.url=data[i].url;
+            a_list.onclick=function () {
+                ipc.send('open-history',this.url);
+                ipc.send('BrowserHistory-close');
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
