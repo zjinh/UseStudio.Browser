@@ -350,7 +350,7 @@ US_Browser.IsLoading=function(webview,flag){
 US_Browser.IpcBind=function(){
     ipcRenderer.on('flag', function(event, message){//接收用户指定的文件
         if(message==='-1'){
-            US_Browser.CreatBrower('https://www.baidu.com');//开始进入一个页面
+            US_Browser.CreatBrower('http://client.1473.cn/homepage.html');//开始进入一个页面
         }
     });
     ipcRenderer.on('url', function(event, message){//接收用户指定的文件

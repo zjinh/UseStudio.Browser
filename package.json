@@ -1,9 +1,9 @@
 {
-  "name": "Usestudio-Browers",
+  "name": "Usestudio-Browser",
   "main": "main.js",
   "private": true,
-  "productName": "Usestudio-Browers",
-  "version": "2.1.1",
+  "productName": "Usestudio-Browser",
+  "version": "2.2.4",
   "author": "ZJINH",
   "email":"211775259@qq.com",
   "dependencies": {
@@ -31,10 +31,10 @@
     },
     "asar": true,
     "nsis": {
-      "oneClick": true,
+      "oneClick": false,
       "menuCategory": "有思俱乐部",
       "shortcutName": "有思浏览器",
-      "allowToChangeInstallationDirectory": false,
+      "allowToChangeInstallationDirectory": true,
       "perMachine": true,
       "runAfterFinish": true
     },

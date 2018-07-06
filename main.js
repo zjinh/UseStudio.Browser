@@ -6,6 +6,7 @@ const path = require('path');
 const url = require('url');//引入url处理模块
 const autoUpdater = require('electron-updater').autoUpdater;
 const {ipcMain} = require('electron');
+const dialog = require('electron').dialog;
 const regedit = require('regedit'); //引入regedit
 const Menu = electron.Menu;//引入菜单慕课
 const debug = (process.argv.indexOf('--debug')>0);
@@ -15,11 +16,17 @@ let message={
     checking:'正在检查更新……',
     updateAva:'检测到新版本，正在下载……',
     updateNotAva:'现在使用的就是最新版本，不用更新',
-    downloaded: '最新版本已下载，点击安装已进行更新'
+    downloaded: '最新版本已下载，点击安装进行更新'
 };
 let childProcess =require('child_process');
 let CampusWindow,mainWindow,BrowserHistory,BrowserFeedback,AboutUsW;
-app.commandLine.appendSwitch('ppapi-flash-path',app.getPath('pepperFlashSystemPlugin'));
+try {
+    let flash=app.getPath('pepperFlashSystemPlugin');
+    app.commandLine.appendSwitch('ppapi-flash-path',flash);
+}catch (e) {
+    dialog.showErrorBox('缺少flash插件', '请前往https://www.flash.cn/下载该插件,点击确定后将打开flash下载地址');
+    process.argv[1]='https://www.flash.cn/';
+}
 var version=require(__dirname+"/package.json").version;
 function createCampusWindow(flag) {
     createIndexWindow(false);
@@ -205,7 +212,6 @@ function BindIpc(){
         CampusWindow.close();
     });
     /*校园资讯写注册表*/
-    console.log(process)
     regedit.putValue({
         'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run':{
             'CampusInfo' : {
