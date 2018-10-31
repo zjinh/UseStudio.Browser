@@ -22,7 +22,7 @@ ul,li{
     padding: 0;
     list-style: none;
 }
-button:focus,button{    
+button:focus,button{
     outline: none;
     cursor: pointer;
 }
@@ -111,6 +111,47 @@ button:hover {
     border-top: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
 }
+.Favorites {
+    width: 100%;
+    height: 26px;
+    display: inline-flex;
+    padding: 4px 0;
+    background: #ffffff;
+    /* border-top: 1px solid #ccc; */
+    border-bottom: 1px solid #ccc;
+}
+.Favorites > ul > li {
+    height: 25px;
+    margin: 0 3px;
+    border-radius: 5px;
+    padding: 0 5px;
+    background: -webkit-linear-gradient(left, white , #f1f1ff);
+    -webkit-transition: all .3s;
+    -moz-transition: all .3s;
+    -ms-transition: all .3s;
+    -o-transition: all .3s;
+    transition: all .3s;
+    cursor: pointer;
+    float: left;
+}
+.Favorites > ul > li:hover {
+    background: #f1f1f1;
+}
+.Favorites > ul > li img{
+    width: 20px;
+    float: left;
+    line-height: 25px;
+    margin: 3px 3px;
+}
+.Favorites > ul > li p{
+    width: auto;
+    max-width: 81px;
+    float: left;
+    font-size: 12px;
+    line-height: 25px;
+    margin: 0 3px;
+    overflow: hidden;
+}
 .BrowerHead button{
     float: left;
     overflow: hidden;
@@ -132,6 +173,9 @@ button:hover {
     background: #fff;
     border-radius: 3px;
 }
+.BrowerUrlArea > i{
+    margin: 2px;
+}
 .BrowerUrlArea *{
     float: left;
 }
@@ -144,7 +188,7 @@ button:hover {
 }
 .BrowerUrlArea input {
     float: left;
-    width: calc(100% - 21px) !important;
+    width: calc(100% - 42px) !important;
     height: 20px;
     border: 0 solid #d2d2d2;
     outline: none;
@@ -154,6 +198,23 @@ button:hover {
     background: none;
 }
 .BrowerHead .icon-ellipsis-vert{
+    color: #8c8c8c;
+    font-weight: lighter;
+    font-size: 18px;
+    padding-top: 2px;
+}
+.FavoritesMore {
+    position: absolute;
+    right: 5px;
+    padding: 2px;
+    cursor: pointer;
+    color: #CCCCCC;
+}
+#FavoritesUl {
+    overflow: hidden;
+}
+
+.icon-ellipsis-verter{
     color: #8c8c8c;
     font-weight: lighter;
     font-size: 18px;
@@ -309,11 +370,11 @@ button.BrowwerAdd {
 }
 /*浏览器显示网页部分样式*/
 .BrowerContainer {
-    height: calc(100% - 80px);
+    height: calc(100% - 115px);
     position: absolute;
     width: 100%;
     left: 0;
-    top: 81px;
+    top: 116px;
 }
 .BrowerContainer webview, webview object{
     height: 100% !important;
@@ -351,6 +412,82 @@ button.BrowwerAdd {
     color: #bfbfbf;
 }
 .MouseMenuMain li:hover{
+    background-color:#eee;
+    color:#000;
+    cursor:pointer;
+}
+
+.US_BookmarkSet {
+    position:absolute;
+    z-index:22;
+    width:auto;
+    height:auto;
+    display: none;
+    min-width:90pt;
+    background:#fff;
+    box-shadow: 0 3px 3px 0 rgba(0,0,0,0.14), 0 1px 7px 0 rgba(0,0,0,0.12), 0 3px 1px -1px rgba(0,0,0,0.2);
+    -moz-user-select:none;
+    -webkit-user-select:none;
+    -ms-user-select:none;
+    -khtml-user-select:none;
+    user-select:none;
+}
+.US_BookmarkSet li {
+    width: auto;
+    max-width: 400px;
+    font-size: 13px;
+    padding: 6px 18px;
+    color: #333;
+    text-align: left;
+    white-space: nowrap;
+    margin-bottom: 2px;
+}
+
+.US_BookmarkSet li:hover{
+    background-color:#eee;
+    color:#000;
+    cursor:pointer;
+}
+
+.MouseMenuMainer{
+    position:absolute;
+    z-index:22;
+    width:auto;
+    height:auto;
+    min-width:90pt;
+    background:#fff;
+    box-shadow: 0 3px 3px 0 rgba(0,0,0,0.14), 0 1px 7px 0 rgba(0,0,0,0.12), 0 3px 1px -1px rgba(0,0,0,0.2);
+    -moz-user-select:none;
+    -webkit-user-select:none;
+    -ms-user-select:none;
+    -khtml-user-select:none;
+    user-select:none;
+}
+.MouseMenuMainer {
+    width: 300px;
+}
+.MouseMenuMainer li{
+    width: auto;
+    max-width: 400px;
+    font-size: 13px;
+    padding: 6px 18px;
+    color: #333;
+    text-align: left;
+    white-space: nowrap;
+    margin-bottom: 2px;
+}
+.MouseMenuMainer li img{
+    width: 20px;
+    float: left;
+    line-height: 25px;
+    margin: 3px 3px;
+}
+.MouseMenuMainer li p{
+    font-size: 12px;
+    line-height: 25px;
+    margin: 0 3px;
+}
+.MouseMenuMainer li:hover{
     background-color:#eee;
     color:#000;
     cursor:pointer;
@@ -629,6 +766,12 @@ button.BrowwerAdd {
     float: unset;
 }
 /* 首页end */
+.column.over {
+    border: 1px dashed #000;
+}
+.column {
+    cursor: move;
+}
 .animated{-webkit-animation-duration:.35s;animation-duration:.35s;-webkit-animation-fill-mode:both;animation-fill-mode:both}
 .animated.infinite{-webkit-animation-iteration-count:infinite;animation-iteration-count:infinite}
 @-webkit-keyframes fadeIn{from{opacity:0}

@@ -1,5 +1,125 @@
 Namespace.register('CampusInfo');
+function JsonParse (data){
+    if (typeof data !== 'string' || !data) {
+        return null
+    }
+    return eval('(' + data.replace(/^\s+/, '').replace(/\s+$/, '') + ')')
+};
+function OptionsInit(options,defaultOptions) {
+    let opts = {};
+    let key;
+    for (key in defaultOptions) {
+        if (typeof options[key] === 'undefined') {
+            opts[key] = defaultOptions[key]
+        } else {
+            opts[key] = options[key]
+        }
+    }
+    return opts
+}
+function Ajax(options) {
+    let ajaxSettings = {
+        url: '',
+        type: 'POST',
+        dataType: 'json',
+        async: true,
+        cache: true,
+        data: null,
+        contentType: 'application/x-www-form-urlencoded',
+        success: null,
+        error: null,
+        complete: null,
+        processData:true,
+        progress:false,
+        accepts: {
+            text: 'text/plain',
+            html: 'text/html',
+            xml: 'application/xml, text/xml',
+            json: 'application/json, text/javascript'
+        },
+        header:null,
+        param:null,
+        withCredentials: false
+    };
+    let opts = OptionsInit(options,ajaxSettings);
+    let param = function (obj) {
+        let s = [];
+        for (let key in obj) {
+            s.push(encodeURIComponent(key) + '=' + encodeURIComponent(obj[key]))
+        }
+        return s.join('&');
+    };
+    let addToQueryString = function (url, params) {
+        return url + (url.indexOf('?') > -1 ? '&' : '?') + param(params);
+    };
+    let xhr = new XMLHttpRequest();
+    let url = opts.url;
+    let sendData = opts.data;
+    let readyStateChange = function () {
+        let status = xhr.status;
+        let data;
+        if (xhr.readyState !== 4) {
+            return
+        }
+        if (status >= 200 && status < 300 || status === 304) {
+            if (opts.dataType === 'xml') {
+                data = xhr.responseXML
+            } else {
+                data = xhr.responseText;
+                if (opts.dataType === 'json') {
+                    data = JsonParse(data);
+                }
+            }
+            if (typeof(opts.success)==='function') {
+                opts.success.call(opts, data, status, xhr);
+            }
+        }
+        else {
+            if (typeof(opts.error)==='function') {
+                opts.error.call(opts, xhr, status)
+            }
+        }
+        if (typeof(opts.complete)==='function') {
+            opts.complete.call(opts, xhr, status)
+        }
+    };
+    if(opts.param) {
+        url = addToQueryString(url, opts.param);
+    }
+    if (!opts.cache) {
+        url = addToQueryString(url, {noAjaxCache: (new Date()).getTime()})
+    }
+    if ((opts.type === 'GET'||opts.type === 'get')&&sendData&&opts.processData) {
+        url = addToQueryString(url, sendData);
+        sendData = null
+    }
+    xhr.open(opts.type, url, opts.async);
+    if ((opts.type === 'POST'||opts.type === 'post')&&sendData&&opts.processData) {
+        sendData = param(sendData);
+        xhr.setRequestHeader('Content-type', opts.contentType);
+    }
+    for(let i in opts.header){
+        xhr.setRequestHeader(i, opts.header[i]);
+    }
+    if(opts.progress) {
+        xhr.upload.addEventListener("progress", opts.progress, false);
+    }
+    if (opts.dataType && opts.accepts[opts.dataType]) {
+        xhr.setRequestHeader('Accept', opts.accepts[opts.dataType])
+    }
+    xhr.withCredentials = opts.withCredentials;
+    if (opts.async) {
+        xhr.onreadystatechange = readyStateChange;
+        xhr.send(sendData)
+    }else {
+        console.warn(opts.url+' 使用了同步请求，该请求将影响性能，不建议使用');
+        xhr.send(sendData);
+        readyStateChange()
+    }
+    return xhr
+};
 const {ipcRenderer} = require('electron');
+let MainWindow=require('electron').remote.getCurrentWindow();
 CampusInfo.LoadAdvert = function () {
     for (var i = 0; i < CampusInfo.Advert.length; i++) {
         var a=$$("img", {
@@ -31,35 +151,39 @@ CampusInfo.LoadData = function (navMain) {
         CampusInfo.NewsData = [];
         CampusInfo.LoadNews = function () {
             var url = data + "iid=" + CampusInfo.randomNum(10) + "&device_id=" + CampusInfo.randomNum(11);
-            U.A.Request(url, null, function (rs) {
-                rs = rs.value.data;
-                for (var i = 0; i < rs.length; i++) {
-                    var list = JSON.parse(rs[i].content);
-                    var arr = [];
-                    var falg = true;
-                    CampusInfo.NewsData.forEach(function (value) {
-                        if (value.UserFilesName === list.title) {
-                            falg = false;
-                            return false;
+            Ajax({
+                url:url,
+                type:'GET',
+                success:function(rs){
+                    rs = rs.data;
+                    for (var i = 0; i < rs.length; i++) {
+                        var list = JSON.parse(rs[i].content);
+                        var arr = [];
+                        var falg = true;
+                        CampusInfo.NewsData.forEach(function (value) {
+                            if (value.UserFilesName === list.title) {
+                                falg = false;
+                                return false;
+                            }
+                        });
+                        if (falg && list.image_list&&list.title.length>15) {
+                            arr.UserFilesName = list.title;
+                            arr.UserFilesServerName = list.image_list[0].url;
+                            arr.Action_url = list.url;
+                            CampusInfo.NewsData.push(arr);
                         }
-                    });
-                    if (falg && list.image_list&&list.title.length>15) {
-                        arr.UserFilesName = list.title;
-                        arr.UserFilesServerName = list.image_list[0].url;
-                        arr.Action_url = list.url;
-                        CampusInfo.NewsData.push(arr);
+                    }
+                    if (CampusInfo.NewsData.length < 19) {
+                        CampusInfo.LoadNews();
+                    } else {
+                        CampusInfo.DealData(ContentLength, LeftContentArr, CenterTitleArr, CenterContentArr, CampusInfo.NewsData);//处理数据
+                        CampusInfo.PrintDataLocal(LeftContentArr, CenterTitleArr, CenterContentArr, LeftArea, CenterArea, Tag);//打印数据（本地数据）
+                        CampusInfo.Loading.remove();//移除loading
+                        CampusInfo.AutoSlider();//开始自动切换
+                        CampusInfo.Bind();//绑定事件
                     }
                 }
-                if (CampusInfo.NewsData.length < 19) {
-                    CampusInfo.LoadNews();
-                } else {
-                    CampusInfo.DealData(ContentLength, LeftContentArr, CenterTitleArr, CenterContentArr, CampusInfo.NewsData);//处理数据
-                    CampusInfo.PrintDataLocal(LeftContentArr, CenterTitleArr, CenterContentArr, LeftArea, CenterArea, Tag);//打印数据（本地数据）
-                    CampusInfo.Loading.remove();//移除loading
-                    CampusInfo.AutoSlider();//开始自动切换
-                    CampusInfo.Bind();//绑定事件
-                }
-            });
+            })
         };
         CampusInfo.LoadNews();
     }else if(typeof data === 'object'&&CampusInfo.Fliter(data)) {
@@ -203,6 +327,15 @@ CampusInfo.Bind = function () {
             }
         })(i)
     }
+    ipcRenderer.on('quit',()=>{
+        CampusInfo.QuitFlag=true;
+    });
+    window.onbeforeunload=(event)=>{
+        if(!CampusInfo.QuitFlag&&process.env.NODE_ENV !== 'development') {
+            MainWindow.hide();
+            return false
+        }
+    };
 };//绑定事件
 CampusInfo.AutoSlider = function () {
     if (CampusInfo.AutoState) {//如果自动切换模式打开
@@ -243,6 +376,7 @@ CampusInfo.Init = function () {
     CampusInfo.Nav = [];//记录导航元素
     CampusInfo.Main = [];//记录内容元素
     CampusInfo.Advert = [];//记录广告区域
+    CampusInfo.QuitFlag=false;
     CampusInfo.Head=$(".CampusInfoHeadTitle span")[0];//获取头部的校内版元素
     for (var i = 0; i < CampusInfo.NavData.length; i++) {//循环导航数组创建元素
         var area = [];//初始化area数组

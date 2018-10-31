@@ -5,11 +5,12 @@ const BrowserWindow = electron.BrowserWindow;//引入一个BrowserWindow
 const path = require('path');
 const url = require('url');//引入url处理模块
 const autoUpdater = require('electron-updater').autoUpdater;
-const {ipcMain} = require('electron');
+const {ipcMain,Tray} = require('electron');
 const dialog = require('electron').dialog;
-const regedit = require('regedit'); //引入regedit
 const Menu = electron.Menu;//引入菜单慕课
 const debug = (process.argv.indexOf('--debug')>0);
+let appTray = null;//托盘变量
+let trayIcon = path.join(__dirname, 'public//img/tray/');
 let message={
     appName:'有思浏览器',
     error:'检查更新出错, 请联系开发人员',
@@ -19,6 +20,15 @@ let message={
     downloaded: '最新版本已下载，点击安装进行更新'
 };
 let childProcess =require('child_process');
+let trayMenuTemplate = [//托盘菜单
+    {
+        label: '退出',
+        click: function () {
+            CampusWindow.webContents.send('quit');
+            CampusWindow.close();
+        }
+    }
+];
 let CampusWindow,mainWindow,BrowserHistory,BrowserFeedback,AboutUsW;
 try {
     let flash=app.getPath('pepperFlashSystemPlugin');
@@ -28,45 +38,87 @@ try {
     process.argv[1]='https://www.flash.cn/';
 }
 var version=require(__dirname+"/package.json").version;
-function createCampusWindow(flag) {
-    createIndexWindow(false);
+let WinReg = require('winreg');
+let startOnBoot = {
+    enableAutoStart: function (name, file, callback) {
+        let key = getKey();
+        key.set(name, WinReg.REG_SZ, file, callback || noop)
+    },
+    disableAutoStart: function (name, callback) {
+        let key = getKey();
+        key.remove(name, callback || noop)
+    },
+    getAutoStartValue: function (name, callback) {
+        let key = getKey();
+        key.get(name, function (error, result) {
+            if (result) {
+                callback(null, result.value)
+            } else {
+                callback(error)
+            }
+        })
+    }
+};
+
+let RUN_LOCATION = '\\Software\\Microsoft\\Windows\\CurrentVersion\\Run';
+
+function getKey() {
+    return new WinReg({
+        hive: WinReg.HKCU, // CurrentUser,
+        key: RUN_LOCATION
+    })
+}
+function noop() {
+}
+function createIndexWindow(flag) {
+    if(CampusWindow){
+        CampusWindow.show();
+        CampusWindow.restore();
+        CampusWindow.focus();
+        return
+    }
+    appTray = new Tray(path.join(trayIcon, 'logo1.ico'));
+    //设置此托盘图标的悬停提示内容
+    appTray.setToolTip('校园资讯');
+    const contextMenu = Menu.buildFromTemplate(trayMenuTemplate);
+    //设置此图标的上下文菜单
+    appTray.setContextMenu(contextMenu);
+    appTray.on("click", function(){
+        CampusWindow.isVisible() ? CampusWindow.hide() : CampusWindow.show();
+    });
+    CampusWindow = new BrowserWindow({ width: 750, height: 540, maxWidth: 750, maxHeight: 540,resizable:false,frame: false,icon:path.join(trayIcon, 'logo1.png') });
+    CampusWindow.loadURL(url.format({
+        pathname: path.join(__dirname, 'index.html'),
+        protocol: 'file:',
+        slashes: true
+    }));
+    CampusWindow.on('closed', function () {
+        CampusWindow = null;
+        appTray.destroy();
+    });
+    if(!flag) {
+        CampusWindow.hide();
+    }
     if(!flag) {
         setTimeout(function () {
             if (CampusWindow) {
                 CampusWindow.show();
                 CampusWindow.restore();
                 CampusWindow.focus();
+                setTimeout(function () {
+                    if (CampusWindow) {
+                        CampusWindow.show();
+                        CampusWindow.restore();
+                        CampusWindow.focus();
+                    }
+                }, 1000 * 60*60);
             }
         }, 1000 * 60*5);
         return false;
     }
-    CampusWindow.show();
-    CampusWindow.restore();
-    CampusWindow.focus();
-}
-function createIndexWindow(flag) {
-    CampusWindow = new BrowserWindow({ width: 750, height: 540, maxWidth: 750, maxHeight: 540,resizable:false,frame: false });
-    CampusWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'index.html'),
-        protocol: 'file:',
-        slashes: true
-    }));
-    if(debug) {
-        CampusWindow.webContents.openDevTools();
-    }
-    CampusWindow.on('closed', function () {
-        CampusWindow = null
-    });
-    if(!flag) {
-        CampusWindow.hide();
-    }
 }
 autoUpdater.setFeedURL('http://client.1473.cn/update');//设置检查更新的 url，并且初始化自动更新。这个 url 一旦设置就无法更改。
 function createWindow(request_url) {
-    if(mainWindow){
-        mainWindow.focus();
-        return false;
-    }
     mainWindow = new BrowserWindow({//游览器窗口
         width: 1920,
         height: 1080,
@@ -209,47 +261,20 @@ function BindIpc(){
         }
     });
     ipc.on('window-close', function () {
-        CampusWindow.close();
-    });
-    /*校园资讯写注册表*/
-    regedit.putValue({
-        'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run':{
-            'CampusInfo' : {
-                value : process.argv[0]+' start',
-                type : 'REG_SZ'
-            }
-        }
-    },function () {
+        CampusWindow.hide();
     });
     /*校园资讯打开浏览器*/
     ipcMain.on('open-browers',function (e,arg) {
         mainWindow.webContents.send('url', arg);
+        mainWindow.show();
         mainWindow.focus();
     });
     /*浏览器ipc*/
     ipc.on('newBrowersWindow',function () {
-        childProcess.exec(process.argv[0]);//启动新的浏览器
+        createWindow();
     });
     ipc.on('CampusInfo',function () {
-        if(CampusWindow){
-            CampusWindow.show();
-            CampusWindow.restore();
-            CampusWindow.focus();
-        }else{
-            createCampusWindow(true);
-        }
-    });
-    ipc.on('window-all-closed', function () {//退出
-        mainWindow.close();
-    });
-    ipc.on('hide-window', function () {//小化
-        mainWindow.minimize();
-    });
-    ipc.on('show-window', function () {//最大化
-        mainWindow.maximize();
-    });
-    ipc.on('orignal-window', function () {//还原
-        mainWindow.restore();
+        createIndexWindow(true);
     });
     ipc.on('elm',function (e,arg){
         mainWindow.webContents.send('elm', arg);
@@ -296,30 +321,30 @@ function BindIpc(){
         autoUpdater.quitAndInstall();
     });
 }
-const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
-    if (CampusWindow) {
-        if (CampusWindow.isMinimized()){
-            CampusWindow.restore()
+
+const gotTheLock = app.makeSingleInstance((commandLine, workingDirectory) => {
+    createWindow();
+});
+if (gotTheLock) {
+
+    app.quit();
+    return;
+}
+app.on('ready', () => {
+    startOnBoot.enableAutoStart('有思浏览器', process.execPath+" start");
+    BindIpc();//ipc通信绑定
+    createWindow();
+    if(process.argv[1]==='start'){
+        mainWindow.hide();
+        createIndexWindow(false);
+    }else{
+        CreateAboutUs();
+        if(process.argv[1]&&process.argv[1].indexOf('--')<0) {
+            return createWindow(process.argv[1]);
         }
-        CampusWindow.focus();
-        CampusWindow.show();
+        mainWindow.show();
     }
 });
-app.on('ready',function () {
-    BindIpc();//ipc通信绑定
-    if(process.argv[1]==='start'){
-        createCampusWindow();
-    }else{
-        if(process.argv[1]&&process.argv[1].indexOf('--')<0) {
-            createWindow(process.argv[1]);
-        }
-        createWindow();
-        CreateAboutUs();
-        if(!CampusWindow&&!shouldQuit){//让校园资讯在多个浏览器窗口开启的情况下也只有一个实例存在
-            createCampusWindow();
-        }
-    }
-} );
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') {
         app.quit()

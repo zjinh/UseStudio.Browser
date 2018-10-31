@@ -3,13 +3,17 @@
   "main": "main.js",
   "private": true,
   "productName": "Usestudio-Browser",
-  "version": "2.2.4",
+  "version": "2.3.0",
   "author": "ZJINH",
-  "email":"211775259@qq.com",
+  "email": "211775259@qq.com",
   "dependencies": {
-    "electron-updater": "^2.21.10",
+    "electron-updater": "^3.1.2",
     "fs": "0.0.1-security",
-    "regedit": "^3.0.0"
+    "regedit": "^3.0.0",
+    "winreg": "^1.2.4"
+  },
+  "devDependencies": {
+    "electron": "^2.0.12"
   },
   "build": {
     "publish": [
@@ -24,7 +28,7 @@
     },
     "win": {
       "icon": "public\\img\\tray\\app.ico",
-      "artifactName": "${productName}_setup_${version}.${ext}",
+      "artifactName": "${productName}_setup.${ext}",
       "target": [
         "nsis"
       ]
@@ -33,7 +37,7 @@
     "nsis": {
       "oneClick": false,
       "menuCategory": "有思俱乐部",
-      "shortcutName": "有思浏览器",
+      "shortcutName": "互联办公",
       "allowToChangeInstallationDirectory": true,
       "perMachine": true,
       "runAfterFinish": true
@@ -45,26 +49,27 @@
         "dmg"
       ]
     },
-    "dmg":{
-      "window":{
-        "x":100,
-        "y":100,
-        "width":500,
-        "height":300
+    "dmg": {
+      "window": {
+        "x": 100,
+        "y": 100,
+        "width": 500,
+        "height": 300
       }
     }
   },
-  "linux":{
+  "linux": {
     "icon": "public\\img\\tray\\app.ico",
-    "target":[
-        "AppImage","tar.gz"
+    "target": [
+      "AppImage",
+      "tar.gz"
     ]
   },
   "scripts": {
-    "start": "electron .",
+    "dev": "electron .",
     "build:win": "electron-builder --win --ia32",
     "build:mac": "electron-builder --mac",
-    "build:linux":"electron-builder --platform=linux",
+    "build:linux": "electron-builder --platform=linux",
     "packager": "electron-packager ./ --all --out ./OutApp --version 1.4.0 --overwrite --icon=./public/img/tray/app.ico"
   },
   "license": "ZJINH"

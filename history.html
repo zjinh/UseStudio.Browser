@@ -41,7 +41,6 @@
         var a_head=$$("p",{"className":"HistoryCardHead","innerText":date},a);
         var a_container=$$("ul",{"className":"HistoryCardContainer"},a);
         var data=JSON.parse(localStorage[date]);
-        console.log(data)
         for(var i=0;i<data.length;i++){
             var a_list=$$("li",{},a_container);
             var a_time=$$("span",{"innerText":data[i].time},a_list);

@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>有思浏览器</title>
     <link rel="stylesheet" href="./public/css/browser.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet">
 </head>
-<body>
+
+<body tabindex="-1">
     <section style="-webkit-app-region: no-drag" class="bowerTop"></section>
-    <section style="-webkit-app-region: drag" class="bowerHeader">
+    <section style="-webkit-app-region: drag" class="bowerHeader" id="bowerHeader">
         <ul class="bowerCreaterWindow" style="-webkit-app-region: drag;padding:15px 0 0">
             <button class="BrowwerAdd"></button>
         </ul>
@@ -21,9 +24,9 @@
         <button class="icon-left"></button>
         <button class="icon-right"></button>
         <button class="icon-cw"></button>
-        <div  class="BrowerUrlArea">
-          <span class="icon-lock"></span>
-          <input type="text" placeholder="在此输入网址或关键词" id="search">
+        <div class="BrowerUrlArea">
+            <span class="icon-lock"></span>
+            <input type="text" placeholder="在此输入网址或关键词" id="search" />
         </div>
         <button class="icon-ellipsis-vert"></button>
         <ul class="MouseMenuMain" id="CampusInfoBrowserOnclickMenu" style="right: 1px;top:81px">
@@ -43,11 +46,28 @@
             <li class="MouseMenuMainStep"></li>
             <li onclick="US_Browser.Exit()">退出<span>Ctrl+Shift+Q</span></li>
         </ul>
+        <button class="icon-ellipsis-verter" id="MouseMenuMainerBtn"><i class="fa fa-heart-o" aria-hidden="true" id="LoveWebSize"></i></button>
     </div>
+    <div class="Favorites" style="z-index: 1;">
+        <ul id="FavoritesUl">
+
+        </ul>
+        <div class="FavoritesMore"><i class="fa fa-chevron-right" aria-hidden="true"></i></div>
+    </div>
+    <ul class="MouseMenuMainer" style="right: 1px;top:81px;display: none">
+
+    </ul>
+
+    <ul id="US_BookmarkSet" class="US_BookmarkSet MouseMenuMain">
+        <li id="DelectBookmark">删除书签</li>
+		<li id="OpenBookmark">在新的标签页打开</li>
+        <!--<li class="MouseMenuMainStep"></li>-->
+    </ul>
+
     <ul class="MouseMenuMain" id="webviewBrowserMenu">
-        <li class="US_OpenLinkInNew"  style="display: none">在新标签页中打开链接</li>
-        <li class='US_OpenImgInNew' style="display: none">在新标签页中打开图片</li>
-        <li class="US_Browers_Back"  onclick="US_Browser.goBack();">返回<span>Alt+左箭头</span></li>
+        <li class="US_OpenLinkInNew" style="display: none">在新标签页中打开链接</li>
+        <li class="US_OpenImgInNew" style="display: none">在新标签页中打开图片</li>
+        <li class="US_Browers_Back" onclick="US_Browser.goBack();">返回<span>Alt+左箭头</span></li>
         <li class="US_Browers_go" onclick="US_Browser.goForward();">前进<span>Alt+右箭头</span></li>
         <li onclick="US_Browser.reFresh();">重新加载<span>Ctrl+R</span></li>
         <li onclick="US_Browser.Print();">打印<span>Ctrl+P</span></li>
@@ -66,4 +86,5 @@
 </body>
 <script src="./public/js/uform.js"></script>
 <script src="./public/js/browser.js"></script>
+
 </html>

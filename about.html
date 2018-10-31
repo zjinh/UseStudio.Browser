@@ -17,7 +17,7 @@
         </div>
         <div class="FeedBackContainer">
             <p></p>
-            <p>开发人员：14互联网 ZJINH&nbsp&nbsp15互联网 蔡文东</p>
+            <p>开发人员：16互联网 张源、15互联网 代英杰、ZJINH</p>
             <p>浏览器介绍：http://client.1473.cn</p>
             <p>版权所有2018 有思俱乐部. 保留所有权利。</p>
             <div style="height: 10px;"><span></span></div>
@@ -46,7 +46,7 @@
     });
     ipcRenderer.on('check-for-update',function (event,message) {
         FeedBackContainer[6].innerHTML=message;
-        if(message==='最新版本已下载，点击安装已进行更新'){
+        if(message==='最新版本已下载，点击安装进行更新'){
             FeedBackContainer[7].innerHTML='重启并安装更新';
             FeedBackContainer[7].onclick=function () {
                 ipc.send('update', 'event-update');
