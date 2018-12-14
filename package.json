@@ -3,17 +3,20 @@
   "main": "main.js",
   "private": true,
   "productName": "Usestudio-Browser",
-  "version": "2.3.0",
+  "version": "3.0.0",
   "author": "ZJINH",
+  "description": "有思浏览器",
   "email": "211775259@qq.com",
   "dependencies": {
-    "electron-updater": "^3.1.2",
+    "electron-updater": "^4.0.0",
     "fs": "0.0.1-security",
     "regedit": "^3.0.0",
     "winreg": "^1.2.4"
   },
   "devDependencies": {
-    "electron": "^2.0.12"
+    "electron": "^2.0.12",
+	"electron-builder": "^20.29.0",
+    "electron-debug": "^2.0.0"
   },
   "build": {
     "publish": [
@@ -69,8 +72,7 @@
     "dev": "electron .",
     "build:win": "electron-builder --win --ia32",
     "build:mac": "electron-builder --mac",
-    "build:linux": "electron-builder --platform=linux",
-    "packager": "electron-packager ./ --all --out ./OutApp --version 1.4.0 --overwrite --icon=./public/img/tray/app.ico"
+    "build:linux": "electron-builder --platform=linux"
   },
   "license": "ZJINH"
 }

@@ -13,46 +13,179 @@
     <div class="HistoryMain">
         <div class="HistoryHead">
             <p>历史记录</p>
+            <div class="HistorySelect">
+                <div>
+                    <input type="text" id="SelectInp" placeholder="搜索历史记录" onblur="inputblur()" onclick="inputclick()" style="-webkit-app-region: no-drag" value="">
+                </div>
+            </div>
         </div>
         <div class="HistoryContainer">
-
+        </div>
+        <div class="Historyoperating">
+            <ul>
+                <li onclick="xianshi()" style="border-bottom: 2px solid #dadada">显示历史记录</li>
+                <li onclick="HistoryCancelAll()" id="qingchu">
+                    清除历史记录
+                    <div class="item" onclick="HistoryCancelDone()" style="opacity: 0">确定</div>
+                    <div class="item" style="opacity: 0">取消</div>
+                </li>
+            </ul>
         </div>
     </div>
     <div class="CampusInfoBrowserHistory"></div>
+    <div class="HistoryBottom">
+        <div class="HistoryBottomContent">
+            <div class="Historycount">已选择<span class="HistoryCountSpan">1</span>项</div>
+            <div class="HistoryPick">
+                <div style="margin-right: 20px;" onclick="HistoryCancel()">取消</div>
+                <div onclick="HistoryDelect()">删除</div>
+            </div>
+        </div>
+    </div>
 </section>
 <script src="./public/js/uform.js"></script>
 <script>
+    var isclick = false
     var ipc=require('electron').ipcRenderer;
     $(".close")[0].onclick=function(){
         ipc.send('BrowserHistory-close');
     };
     addChild = function(parent,newChild){
-        if(parent.firstChild){
-            parent.insertBefore(newChild,parent.firstChild);
-        } else {
-            parent.addChild(newChild);
-        }
+        parent.insertBefore(newChild,parent.firstChild);
+        // if(parent.firstChild){
+        //     // parent.insertBefore(newChild,parent.firstChild);
+        // } else {
+        //     // parent.addChild(newChild);
+        // }
         return parent;
     }
-    var BrowserHistory = $(".HistoryContainer")[0];
-    for (date in localStorage) {
-        var a=$$("div",{"className":"HistoryCard"});
-        addChild(BrowserHistory,a);
-        var a_head=$$("p",{"className":"HistoryCardHead","innerText":date},a);
+    const inputblur = () => {
+        isclick = false
+    }
+    const inputclick = () => {
+        isclick = true
+    }
+    const choose = () => {
+        let numb = document.querySelectorAll("input[type='checkbox']:checked").length
+        if (numb === 0) {
+            $('.HistoryBottom')[0].style.bottom = '-55px';
+        }else{
+            $('.HistoryBottom')[0].style.bottom = '-0px';
+            $('.HistoryCountSpan')[0].innerText = numb
+        }
+    }
+    const HistoryCancel = () => {
+        let numb = document.querySelectorAll("input[type='checkbox']:checked")
+        if (numb.length) {
+            for(var i=0; i < numb.length; i++){
+                numb[i].checked = false;
+            }
+            $('.HistoryBottom')[0].style.bottom = '-55px';
+            $('.HistoryCountSpan')[0].innerText = '0'
+        }
+    }
+    const HistoryDelect = () => {
+        let isclick = document.querySelectorAll("input[type='checkbox']:checked")
+        for(let i = 0; i < isclick.length; i ++){
+            Historyshanchu(isclick[i].parentNode.parentNode.parentNode.childNodes[0].innerHTML, isclick[i].value, isclick[i].parentNode)
+        }
+    }
+    const Historyshanchu = (par, item, my) => {
+        let arr = JSON.parse(localStorage[par])
+        arr.splice(~~item, 1)
+        localStorage[par] = JSON.stringify(arr)
+        my.style.display = 'none'
+        my.parentNode.removeChild(my)
+        $('.HistoryBottom')[0].style.bottom = '-55px';
+        $('.HistoryCountSpan')[0].innerText = '0'
+    }
+    const HistoryCancelAll = () => {
+        [...document.querySelectorAll('.item')].map((i)=>{
+            if(i.style.opacity === '0'){
+                i.style.opacity = '1'
+            }else{
+                i.style.opacity = '0'
+            }
+        })
+    }
+    const HistorySelect = () => {
+        let selectdata = document.querySelectorAll('#SelectInp')[0]
+        let arr = []
+        for (date in localStorage) {
+            let data = JSON.parse(localStorage[date])
+            for(let i = 0; i < data.length; i ++){
+                if(data[i].title.indexOf(selectdata.value) >= 0 || data[i].url.indexOf(selectdata.value) >= 0){
+                    arr.push(data[i])
+                }
+            }
+        }
+        xuanrang(arr)
+    }
+    let BrowserHistory = $(".HistoryContainer")[0];
+    const xuanrang = (arr) => {
+        BrowserHistory.innerHTML = ''
+        let a = $$("div",{"className":"HistoryCard"},BrowserHistory);
+        var a_head=$$("p",{"className":"HistoryCardHead","innerText":'搜索历史记录'},a);
         var a_container=$$("ul",{"className":"HistoryCardContainer"},a);
-        var data=JSON.parse(localStorage[date]);
-        for(var i=0;i<data.length;i++){
-            var a_list=$$("li",{},a_container);
-            var a_time=$$("span",{"innerText":data[i].time},a_list);
-            var a_content=$$("div",{},a_list);
-            $$("img",{"src":data[i].favicons,"draggable":"false"},a_content);
-            $$("p",{"innerText":data[i].title},a_content);
-            a_list.url=data[i].url;
-            a_list.onclick=function () {
+        // addChild(BrowserHistory,a);
+        for(let i=0;i<arr.length;i++){
+            let a_list=$$("li",{},a_container);
+            let a_time=$$("span",{"innerText":arr[i].time},a_list);
+            let a_content=$$("div",{},a_list);
+            $$("img",{"src":arr[i].favicons,"draggable":"false"},a_content);
+            $$("p",{"innerText":arr[i].title},a_content);
+            $$("p",{"innerText":arr[i].url}, a_content)
+            a_content.url=arr[i].url;
+            a_content.onclick=function () {
                 ipc.send('open-history',this.url);
                 ipc.send('BrowserHistory-close');
             }
         }
+    }
+    const xianshi = () => {
+        BrowserHistory.innerHTML = ''
+        for (date in localStorage) {
+            var a = $$("div",{"className":"HistoryCard"});
+            addChild(BrowserHistory,a);
+            var a_head=$$("p",{"className":"HistoryCardHead","innerText":date},a);
+            var a_container=$$("ul",{"className":"HistoryCardContainer"},a);
+            var data = JSON.parse(localStorage[date]);
+            for(var i=0;i<data.length;i++){
+                var a_list=$$("li",{},a_container);
+                $$("input",{"type":"checkbox","className":"Historyinput",'value': i,'onclick':function () {
+                        choose()
+                    }},a_list)
+                var a_time=$$("span",{"innerText":data[i].time},a_list);
+                var a_content=$$("div",{},a_list);
+                $$("img",{"src":data[i].favicons,"draggable":"false"},a_content);
+                $$("p",{"innerText":data[i].title},a_content);
+                $$("p",{"innerText":data[i].url}, a_content)
+                a_content.url=data[i].url;
+                a_content.onclick=function () {
+                    ipc.send('open-history',this.url);
+                    ipc.send('BrowserHistory-close');
+                }
+            }
+        }
+    }
+    const HistoryCancelDone = () => {
+        localStorage = ''
+    }
+    const keydown = () => {
+        document.onkeydown=function(event){
+            var e = event || window.event || arguments.callee.caller.arguments[0];
+            if(e && e.keyCode==13){
+                //要做的事情
+                if(isclick == true){
+                    HistorySelect()
+                }
+            }
+            
+        };
+    }
+    window.onload = () => {
+        xianshi()
+        keydown()
     }
 </script>
 

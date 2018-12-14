@@ -19,7 +19,6 @@ let message={
     updateNotAva:'现在使用的就是最新版本，不用更新',
     downloaded: '最新版本已下载，点击安装进行更新'
 };
-let childProcess =require('child_process');
 let trayMenuTemplate = [//托盘菜单
     {
         label: '退出',
@@ -161,8 +160,8 @@ function CreateHistory() {
         return false;
     }
     BrowserHistory = new BrowserWindow({//历史记录
-        width: 800,
-        height:600,
+        width: 1450,
+        height:900,
         resizable:false,
         frame: false,
         parent:mainWindow
@@ -265,13 +264,17 @@ function BindIpc(){
     });
     /*校园资讯打开浏览器*/
     ipcMain.on('open-browers',function (e,arg) {
-        mainWindow.webContents.send('url', arg);
-        mainWindow.show();
-        mainWindow.focus();
+        if(mainWindow){
+            mainWindow.webContents.send('url', arg);
+            mainWindow.show();
+            mainWindow.focus();
+            return
+        }
+        createWindow(arg)
     });
     /*浏览器ipc*/
-    ipc.on('newBrowersWindow',function () {
-        createWindow();
+    ipc.on('newBrowersWindow',function (e,arg) {
+        createWindow(arg);
     });
     ipc.on('CampusInfo',function () {
         createIndexWindow(true);
@@ -320,6 +323,44 @@ function BindIpc(){
     ipc.on('update', function(event, arg) {
         autoUpdater.quitAndInstall();
     });
+    ipc.on('openlove', function (event, arg) {
+        let request_url = arg
+        mainWindow = new BrowserWindow({//游览器窗口
+            width: 1920,
+            height: 1080,
+            backgroundColor:'#fff',
+            webPreferences:{
+                'plugins': true
+            },
+            frame: false
+        });
+        mainWindow.loadURL(url.format({
+            pathname: path.join(__dirname, 'browser.html'),
+            protocol: 'file:',
+            slashes: true
+        }));
+        if(debug) {
+            mainWindow.webContents.openDevTools();
+        }
+        mainWindow.on('closed', function () {
+            mainWindow = null
+        });
+        mainWindow.webContents.on('did-finish-load', function(){
+            if(request_url) {
+                mainWindow.webContents.send('flag', '1');
+                mainWindow.webContents.send('url', request_url)
+            }else {
+                mainWindow.webContents.send('flag', '-1');
+            }
+        });
+        mainWindow.focus();
+        mainWindow.on('maximize',function () {
+            mainWindow.webContents.send('size', 1);
+        });
+        mainWindow.on('unmaximize',function () {
+            mainWindow.webContents.send('size', -1);
+        });
+    })
 }
 
 const gotTheLock = app.makeSingleInstance((commandLine, workingDirectory) => {

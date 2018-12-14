@@ -1,9 +1,9 @@
 const url = require('url');
 const {ipcRenderer} = require('electron');
-let BrowersWindow=require('electron').remote.getCurrentWindow();
 let ipc=require('electron').ipcRenderer;
 /*注册命名空间*/
 let US_Browser=[];
+let BrowersWindow=require('electron').remote.getCurrentWindow();
 Namespace.register("US_Browser");
 /*浏览器函数*/
 US_Browser.CreatBrower=function (address,flag) {//创建窗口,url，是否为用户选择文件
@@ -12,7 +12,7 @@ US_Browser.CreatBrower=function (address,flag) {//创建窗口,url，是否为�
     let www=/^(www)/;
     let m=/^(m)/;
     let li=$$("li", {//创建ul下的li
-        "className": "BrowerList"
+        "className": "BrowerList","draggable":"true"
     }, US_Browser.NavContainer);
     let ListBody=$$("div", {//创建li下的div
         "className": "BrowerListBody","ripple":""
@@ -29,14 +29,15 @@ US_Browser.CreatBrower=function (address,flag) {//创建窗口,url，是否为�
         "favicons":'public/img/tray/logo.png'
     };
     ListBody.tag_favicon=$$("img", {//标签页图标
-        "className": "tag_favicon", "draggable":"false", "alt":""
+        "className": "tag_favicon", "alt":""
     }, ListBody);
+    ListBody.tag_favicon.setAttribute("draggable","false");
     ListBody.tag_favicon.style.display=(address&&address!==null)?"block":"none";
     ListBody.tag_favicon.onerror=function () {//不存在时显示的标签页图标
         this.src='public/img/tray/logo.png';
     };
     ListBody.Webname=$$("p", {//标签页标题
-        "className": "Webname","innerHTML":address?"正在加载":"新建标签","draggable":"false"
+        "className": "Webname","innerHTML":address?"正在加载":"新建标签",
     }, ListBody);
     ListBody.tag_close=$$("i", {//标题页关闭按钮
         "className":"icon-cancel tag_close"
@@ -187,6 +188,15 @@ US_Browser.CreatBrower=function (address,flag) {//创建窗口,url，是否为�
         US_Browser.NavContainer.removeChild(webview.tag);//移除当前li
         document.body.removeChild(BrowerContainer);//移除当前webview
     };
+    // 标签页右键‘关闭标签’
+    li.onmousedown = function (e) {
+        if(e.button == 2 ){
+            US_Browser.MouseMenu($("#US_TagSet")[0],this,event);
+            $("#DelectTags")[0].onclick = function(){
+                ListBody.tag_close.click(0)
+            }
+        }
+    }
     webview.src=address;//给webview的src传值
     US_Browser.Bind();
     ListBody.click();//点击li下的包裹节点
@@ -205,12 +215,12 @@ US_Browser.CreatBrower=function (address,flag) {//创建窗口,url，是否为�
         }
         webview.tag.getElementsByTagName('img')[0].style.display = "block";//标签页图标显示
     }
+    US_Browser.BrowerList.drag();
 };//创建一个新的浏览器选项卡
 US_Browser.MouseMenu=function (menu_main,data,e,flag) {//右键菜单事件
     let createNode=document.body;//获取第一和参数父元素
     let MouseMenuMain=$('.MouseMenuMain');//获取右键菜单事件的ul元素
     US_Browser.MouseMenuMainer.style.display='none';
-    $('#US_BookmarkSet')[0].style.display = 'none'
     for(let i=0;i<MouseMenuMain.length;i++){//隐藏右键菜单事件所有
         MouseMenuMain[i].style.display='none';
     }
@@ -377,22 +387,25 @@ US_Browser.IpcBind=function(){
     ipcRenderer.on('download-progress',function (event,message) {
         console.log(message)
     });
+    ipcRenderer.on('geturl',function (event,message) {
+        US_Browser.CreatBrower(message);//开始进入一个页面
+    });
     ipcRenderer.on('size',function (event,message) {
         if(message>0){
             US_Browser.ControlButton[1].className='icon-window-restore';
             US_Browser.NavContainer.style.padding = "5px 0 0";
             US_Browser.RightMenu.style.top='71px';
             US_Browser.BrowerContainer.each(function (index,elm) {
-                elm.style.top='71px';
-                elm.style.height='calc(100% - 70px)';
+                elm.style.top='106px';
+                elm.style.height='calc(100% - 106px)';
             })
         }else {
             US_Browser.ControlButton[1].className='icon-window-maximize';
             US_Browser.NavContainer.style.padding = "15px 0 0";
             US_Browser.RightMenu.style.top='81px';
             US_Browser.BrowerContainer.each(function (index,elm) {
-                elm.style.top='81px';
-                elm.style.height='calc(100% - 80px)';
+                elm.style.top='116px';
+                elm.style.height='calc(100% - 117px)';
             })
         }
     })
@@ -412,10 +425,12 @@ US_Browser.Bind=function(){//绑定
                     US_Browser.BrowersTag[0].className='BrowerList Listindex';
                     US_Browser.BrowerContainer[j].style.opacity='0';
                     US_Browser.BrowerContainer[j].style.zIndex='1';
+                    US_Browser.BrowerContainer[j].style.left='-100%';
                 }
                 US_Browser.BrowersTag[i].className+=' BrowerActive';
                 US_Browser.BrowerContainer[i].style.opacity='1';
                 US_Browser.BrowerContainer[i].style.zIndex='1';
+                US_Browser.BrowerContainer[i].style.left='0';
                 US_Browser.Head[5].value=this.data.url;
                 US_Browser.SelecteWebview=US_Browser.BrowerContainer[i].children[0];
                 if(US_Browser.SelecteWebview.FindKey){
@@ -477,10 +492,10 @@ US_Browser.HeadBind=function(){
             BrowersWindow.maximize();
             this.className='icon-window-restore';
             US_Browser.NavContainer.style.padding = "5px 0 0";
-            US_Browser.RightMenu.style.top='71px';
+            US_Browser.RightMenu.style.top='106px';
             US_Browser.BrowerContainer.each(function (index,elm) {
-                elm.style.top='70px';
-                elm.style.height='calc(100% - 70px)';
+                elm.style.top='106px';
+                elm.style.height='calc(100% - 106px)';
             })
         }else{
             BrowersWindow.restore();
@@ -488,8 +503,8 @@ US_Browser.HeadBind=function(){
             US_Browser.NavContainer.style.padding = "15px 0 0";
             US_Browser.RightMenu.style.top='81px';
             US_Browser.BrowerContainer.each(function (index,elm) {
-                elm.style.top='81px';
-                elm.style.height='calc(100% - 80px)';
+                elm.style.top='116px';
+                elm.style.height='calc(100% - 117px)';
             })
         }
         isBig=!isBig;
@@ -547,7 +562,7 @@ US_Browser.HeadBind=function(){
             alert("窗口太多，请关闭一些再使用");//弹出提示
             return false;
         }
-        US_Browser.CreatBrower(null);
+        US_Browser.CreatBrower('./new.html');
         US_Browser.Head[5].focus();
         US_Browser.RightMenu.style.display='none';
         US_Browser.MouseMenuMainer.style.display='none';
@@ -718,6 +733,7 @@ US_Browser.HeadBind=function(){
     };
     US_Browser.drag = function() {
         US_Browser.columns = document.querySelectorAll('#FavoritesUl .column');
+        US_Browser.columnser = document.querySelectorAll('.MouseMenuMainer .column');
         US_Browser.dragEl = null;
         [].forEach.call(US_Browser.columns,function(column){
             column.addEventListener("dragstart",US_Browser.domdrugstart,false);
@@ -726,6 +742,9 @@ US_Browser.HeadBind=function(){
             column.addEventListener('dragleave', US_Browser.domdrugleave, false);
             column.addEventListener('drop', US_Browser.domdrop, false);
             column.addEventListener('dragend', US_Browser.domdrapend, false);
+            column.addEventListener('mousedown', US_Browser.onmousedown, false);
+        });
+        [].forEach.call(US_Browser.columnser,function(column){
             column.addEventListener('mousedown', US_Browser.onmousedown, false);
         });
     }
@@ -796,7 +815,8 @@ US_Browser.HeadBind=function(){
                 let arr = JSON.parse(window.localStorage.getItem('arr'))
                 arr.splice(j, 1);
                 window.localStorage.setItem('arr', JSON.stringify(arr))
-                // $('#FavoritesUl')[0].removeChild($('#FavoritesUl')[0].children[j + 3])
+                $('#FavoritesUl')[0].removeChild($('#FavoritesUl')[0].children[j])
+                $('.MouseMenuMainer')[0].removeChild($('.MouseMenuMainer')[0].children[j])
                 US_Browser.DelectBookmarktar.style.display = 'none';
                 if(i.url === US_Browser.SelecteWebview.src){
                     $('#LoveWebSize')[0].className = 'fa fa-heart'
@@ -808,6 +828,68 @@ US_Browser.HeadBind=function(){
         US_Browser.CreatBrower(US_Browser.DelectBookmarktar.getAttribute('data'))
         document.querySelector('.US_BookmarkSet').style.display = 'none'
     }
+    US_Browser.OpenBookmarker.onclick = function(){
+        ipc.send('openlove', US_Browser.DelectBookmarktar.getAttribute('data'))
+        $('#US_BookmarkSet')[0].style.display = 'none';
+    }
+    // 标签页拖动、右键单击事件
+    US_Browser.BrowerList.drag = function () {
+        US_Browser.tags = document.querySelectorAll('.bowerCreaterWindow .BrowerList');
+        US_Browser.tagEL = null;
+        US_Browser.stScreenX = null;
+        [].forEach.call(US_Browser.tags,function(BrowerList){
+            // 用户开始拖动元素或文本选择时会触发该事件
+            BrowerList.addEventListener('dragstart',US_Browser.tagdragstart,false)
+            // 当拖动的元素或文本选择进入有效的放置目标时，将触发该事件
+            BrowerList.addEventListener('dragenter',US_Browser.tagdragenter,false)
+            // 当在有效放置目标上拖动元素或文本选择时（每几百毫秒），将触发该事件。
+            // 该事件在放置目标上触发。
+            BrowerList.addEventListener('dragover',US_Browser.tagdragover,false)
+            // 当拖动的元素或文本选择留下有效的放置目标时，将触发该事件
+            BrowerList.addEventListener('dragleave',US_Browser.tagdragleave,false)
+            // 在有效放置目标上删除元素或文本选择时会触发该事件
+            BrowerList.addEventListener('drop',US_Browser.tagdrop,false)
+            // 当拖动操作结束时（通过释放鼠标按钮或按下转义键）将触发该事件
+            BrowerList.addEventListener('dragend',US_Browser.tagdragend,false)
+            // 标签页右键单击事件
+            BrowerList.addEventListener('mousedown',US_Browser.tagmousedown,false)
+        })
+    }
+    US_Browser.tagdragstart = function(e) {
+        tagEL = e.target;
+        stScreenX = e.screenX;
+    }
+    US_Browser.tagdragenter = function(e) {
+
+    }
+    US_Browser.tagdragover = function(e) {
+        // 防止默认行为
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    }
+    US_Browser.tagdragleave = function(e) {
+        tagELf=false;
+    }
+    US_Browser.tagdrop = function(e) {
+        e.preventDefault();
+        if (tagEL.nextSibling == this) {
+            US_Browser.NavContainer.insertBefore(this,tagEL);
+        } else if (tagEL.previousSibling == this) {
+            US_Browser.NavContainer.insertBefore(tagEL,this);
+        } else if (stScreenX < e.screenX) {
+            US_Browser.NavContainer.insertBefore(tagEL,this.nextSibling)
+        } else if (stScreenX > e.screenX) {
+            US_Browser.NavContainer.insertBefore(tagEL,this)
+        }
+        tagELf=false;
+    }
+    US_Browser.tagdragend = function(e) {
+        [].forEach.call(US_Browser.tags,function(BrowerList){});
+    }
+    US_Browser.tagmousedown = function(e) {
+        let TagSet = document.getElementById("US_TagSet");
+        US_Browser.MouseMenu(TagSet,this,event);
+    }
     US_Browser.Head[0].style.color = '#d3d3d3';
     US_Browser.Head[1].style.color = '#d3d3d3';
     US_Browser.Head[2].style.color = '#d3d3d3';
@@ -818,6 +900,7 @@ US_Browser.Init=function () {//初始化
     US_Browser.isready = false
     US_Browser.Love = window.localStorage.getItem('arr')
     US_Browser.NavContainer=$(".bowerCreaterWindow")[0];//获取标签页ul
+    US_Browser.BrowerList = $(".BrowerList");// 获取标签页li
     US_Browser.MouseMenuMain=$("#webviewBrowserMenu")[0];//获取网页右键菜单
     US_Browser.RightMenu=$("#CampusInfoBrowserOnclickMenu")[0];//获取浏览器菜单
     US_Browser.RightMenubtn=$("#MouseMenuMainerBtn")[0];//获取浏览器菜单
@@ -830,6 +913,7 @@ US_Browser.Init=function () {//初始化
     US_Browser.MouseMenuMainer = $('.MouseMenuMainer')[0]
     US_Browser.DelectBookmark = $('#DelectBookmark')[0]
     US_Browser.OpenBookmark = $('#OpenBookmark')[0]
+    US_Browser.OpenBookmarker = $('#OpenBookmarker')[0]
     US_Browser.DelectBookmarktar = ''
     US_Browser.Elm[0].onkeyup=function (e) {//查找的input
         if(this.value.length&&e.keyCode!==8){//如果存在值
@@ -851,4 +935,5 @@ US_Browser.Init=function () {//初始化
 }();
 window.onload = function () {
     US_Browser.drag();
+    US_Browser.BrowerList.drag();
 }
