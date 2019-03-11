@@ -227,6 +227,7 @@ function CheckUpdate(event) {
     });
     //当发现一个可用更新的时候触发，更新包下载会自动开始
     autoUpdater.on('update-available', function(info) {
+        AboutUsW.show();
         event.sender.send('update-down-success', info);
         event.sender.send('check-for-update',message.updateAva);//返回一条信息
     });
@@ -375,11 +376,11 @@ app.on('ready', () => {
     startOnBoot.enableAutoStart('有思浏览器', process.execPath+" start");
     BindIpc();//ipc通信绑定
     createWindow();
+    CreateAboutUs();
     if(process.argv[1]==='start'){
         mainWindow.hide();
         createIndexWindow(false);
     }else{
-        CreateAboutUs();
         if(process.argv[1]&&process.argv[1].indexOf('--')<0) {
             return createWindow(process.argv[1]);
         }

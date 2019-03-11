@@ -819,7 +819,7 @@ US_Browser.HeadBind=function(){
                 $('.MouseMenuMainer')[0].removeChild($('.MouseMenuMainer')[0].children[j])
                 US_Browser.DelectBookmarktar.style.display = 'none';
                 if(i.url === US_Browser.SelecteWebview.src){
-                    $('#LoveWebSize')[0].className = 'fa fa-heart'
+                    $('#LoveWebSize')[0].className = 'fa fa-heart-o'
                 }
             }
         })

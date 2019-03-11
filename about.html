@@ -40,6 +40,7 @@
         FeedBackContainer[6].innerHTML='正在查询新版本';
         ipc.send('check-for-update', 'event-update');
     };
+	FeedBackContainer[7].click();
     ipcRenderer.on('version',function (event,message) {
         FeedBackContainer[0].innerHTML='有思浏览器 ('+process.platform+') v'+message;
         version=message;

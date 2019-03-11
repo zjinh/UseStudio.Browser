@@ -835,7 +835,7 @@ input::-ms-input-placeholder {
 }
 
 .HistoryCardContainer li span {
-    width: 80px;
+    width: 93px;
     font-size: 12px;
     color: #7f7e7e;
     -moz-user-select: none;
@@ -846,7 +846,7 @@ input::-ms-input-placeholder {
 }
 
 .HistoryCardContainer li div {
-    width: calc(100% - 100px);
+    width: calc(100% - 120px);
     height: 100%;
     font-size: 13px;
 }

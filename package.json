@@ -3,7 +3,7 @@
   "main": "main.js",
   "private": true,
   "productName": "Usestudio-Browser",
-  "version": "3.0.0",
+  "version": "3.0.2",
   "author": "ZJINH",
   "description": "有思浏览器",
   "email": "211775259@qq.com",
@@ -14,9 +14,7 @@
     "winreg": "^1.2.4"
   },
   "devDependencies": {
-    "electron": "^2.0.12",
-	"electron-builder": "^20.29.0",
-    "electron-debug": "^2.0.0"
+    "electron": "^2.0.12"
   },
   "build": {
     "publish": [

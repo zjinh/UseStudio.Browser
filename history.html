@@ -15,7 +15,7 @@
             <p>历史记录</p>
             <div class="HistorySelect">
                 <div>
-                    <input type="text" id="SelectInp" placeholder="搜索历史记录" onblur="inputblur()" onclick="inputclick()" style="-webkit-app-region: no-drag" value="">
+                    <input type="text" id="SelectInp" placeholder="搜索历史记录" onblur="inputblur()" onclick="inputclick()" style="-webkit-app-region: no-drag" value="" onkeyup="openFlag()" onkeydown="closeFlag()" >
                 </div>
             </div>
         </div>
@@ -115,7 +115,15 @@
             let data = JSON.parse(localStorage[date])
             for(let i = 0; i < data.length; i ++){
                 if(data[i].title.indexOf(selectdata.value) >= 0 || data[i].url.indexOf(selectdata.value) >= 0){
-                    arr.push(data[i])
+                    if(data[i].data) {
+                        var a = date.split('/')
+                        a.splice(1,0,'年')
+                        a.splice(3,0,'月')
+                        a.push('日')
+                        a = a.join('')
+                        data[i].time = a
+                        arr.push(data[i])
+                    }
                 }
             }
         }
@@ -147,24 +155,26 @@
         for (date in localStorage) {
             var a = $$("div",{"className":"HistoryCard"});
             addChild(BrowserHistory,a);
-            var a_head=$$("p",{"className":"HistoryCardHead","innerText":date},a);
-            var a_container=$$("ul",{"className":"HistoryCardContainer"},a);
-            var data = JSON.parse(localStorage[date]);
-            for(var i=0;i<data.length;i++){
-                var a_list=$$("li",{},a_container);
-                $$("input",{"type":"checkbox","className":"Historyinput",'value': i,'onclick':function () {
+            if(date != "arr"){
+                var a_head=$$("p",{"className":"HistoryCardHead","innerText":date},a);
+                var a_container=$$("ul",{"className":"HistoryCardContainer"},a);
+                var data = JSON.parse(localStorage[date]).reverse();
+                for(var i=0;i<data.length;i++){
+                    var a_list=$$("li",{},a_container);
+                    var a_time=$$("span",{"innerText":data[i].time},a_list);
+                    $$("input",{"type":"checkbox","className":"Historyinput",'value': i,'onclick':function () {
                         choose()
-                    }},a_list)
-                var a_time=$$("span",{"innerText":data[i].time},a_list);
-                var a_content=$$("div",{},a_list);
-                $$("img",{"src":data[i].favicons,"draggable":"false"},a_content);
-                $$("p",{"innerText":data[i].title},a_content);
-                $$("p",{"innerText":data[i].url}, a_content)
-                a_content.url=data[i].url;
-                a_content.onclick=function () {
-                    ipc.send('open-history',this.url);
-                    ipc.send('BrowserHistory-close');
-                }
+                    }},a_time)
+                    var a_content=$$("div",{},a_list);
+                    $$("img",{"src":data[i].favicons,"draggable":"false"},a_content);
+                    $$("p",{"innerText":data[i].title},a_content);
+                    $$("p",{"innerText":data[i].url}, a_content)
+                    a_content.url=data[i].url;
+                    a_content.onclick=function () {
+                        ipc.send('open-history',this.url);
+                        ipc.send('BrowserHistory-close');
+                    }
+                }   
             }
         }
     }
@@ -174,14 +184,32 @@
     const keydown = () => {
         document.onkeydown=function(event){
             var e = event || window.event || arguments.callee.caller.arguments[0];
-            if(e && e.keyCode==13){
+            if(e && e.keyCode == 13){
                 //要做的事情
-                if(isclick == true){
+                if(isclick == true && $('#SelectInp')[0].value.length != 0){
                     HistorySelect()
                 }
             }
-            
+            if(e && e.keyCode == 8){
+                if($('#SelectInp')[0].value.length == 1) {
+                    xianshi()
+                }
+            }
         };
+    }
+    var flag = 0;
+    var t;
+    const openFlag = () => {
+        t = setTimeout(() => {flag = 1; dosomething();}, 1000); 
+    }
+    const closeFlag = () => {
+        clearTimeout(t);
+        flag = 0;
+    }
+    const dosomething = () => {
+        if (flag && $('#SelectInp')[0].value.length != 0) {
+            HistorySelect()
+        }
     }
     window.onload = () => {
         xianshi()
